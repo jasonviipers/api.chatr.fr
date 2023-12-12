@@ -16,10 +16,8 @@ jobs:
         id: pnpm
         run: |
           npm i pnpm@latest -g
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
-
-      - name: Clear pnpm cache
-        run: pnpm clear
+          sed -i '/^use-node-version/d' .npmrc
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Setup cache
         uses: actions/cache@v3
@@ -30,5 +28,5 @@ jobs:
 
       - name: Install dependencies
         run: pnpm i -P
- 
+
       - run: pnpm build
