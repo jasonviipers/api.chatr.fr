@@ -1,0 +1,20 @@
+import bcrypte from 'bcrypt';
+
+export class HashServices {
+    protected salt: number;
+    protected plainText: string;
+
+    constructor(plainText: string) {
+        const salt = bcrypte.genSaltSync(11);
+        this.plainText = plainText;
+        this.salt = parseInt(salt);
+    }
+
+    public async hash(): Promise<string> {
+        return bcrypte.hashSync(this.plainText, this.salt);
+    }
+
+    public compare(hash: string): boolean {
+        return bcrypte.compareSync(this.plainText, hash);
+    }
+}

@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String      @unique
+  password       String      
+  role           UserRole    @default(USER)
+  meetings       Meeting[]
+  verified       Boolean     @default(false)
+  verifyToken    String?     @unique
+  verifyExpires  DateTime?   // New field for token expiration
+  resetToken     String?     @unique
+  resetExpires   DateTime?   // New field for token expiration
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  deletedAt      DateTime?   // New field for soft deletes
+}
+
+model Meeting {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String?
+  startTime     DateTime
+  endTime       DateTime
+  hostId        String        @db.ObjectId
+  host          User          @relation(fields: [hostId], references: [id])
+  participants  Participant[]
+  messages      Message[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?     // New field for soft deletes
+}
+
+model Participant {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  meetingId String   @db.ObjectId
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  file      String?
+  userId    String   @db.ObjectId
+  meetingId String   @db.ObjectId
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
