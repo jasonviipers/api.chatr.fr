@@ -1,0 +1,19 @@
+version = 1
+
+[[analyzers]]
+name = "test-coverage"
+
+[[analyzers]]
+name = "javascript"
+
+  [analyzers.meta]
+  environment = [
+    "jest",
+    "nodejs"
+  ]
+
+[[analyzers]]
+name = "docker"
+
+[[analyzers]]
+name = "ansible"
