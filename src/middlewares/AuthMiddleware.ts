@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { LoggerUtils } from '../utils/logger.utils';
-import JwtUtils from '../utils/jwt.uitls';
+import JwtUtils, { JwtPayload } from '../utils/jwt.uitls';
 
 export default class AuthMiddleware {
     static authenticate(req: Request, res: Response, next: NextFunction): void {
@@ -11,8 +11,8 @@ export default class AuthMiddleware {
             const token = authorizationHeader.split(' ')[1]; // Bearer [token]
             if (!token) throw new Error('No token provided');
 
-            const userPayload = JwtUtils.verify(token); // Verifies token and gets user payload
-            (req as any).user = userPayload; // Append user payload to request object
+            const userPayload = JwtUtils.verify(token) as JwtPayload ; // Verifies token and gets user payload
+            req.user = userPayload; // Append user payload to request object
 
             next(); // Pass control to the next middleware
         } catch (error) {
