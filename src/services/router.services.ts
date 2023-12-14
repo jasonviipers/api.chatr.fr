@@ -1,6 +1,6 @@
 import { Express, Request, Response, NextFunction } from 'express';
 import { map } from 'lodash';
-import routes from '../routes';
+import routes from '../routes/routes';
 import { LoggerUtils } from '../utils/logger.utils';
 
 export enum HttpMethod {
