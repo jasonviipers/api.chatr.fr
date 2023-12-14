@@ -10,10 +10,11 @@ export enum HttpMethod {
     PATCH = 'patch',
     DELETE = 'delete',
 }
+
 export interface Route {
     method: HttpMethod;
     path: string;
-    middleware: Array<(req: Request, res: Response, next: NextFunction) => void | Promise<void>>;
+    middleware?: Array<(req: Request, res: Response, next: NextFunction) => void | Promise<void>>;
     controller: (req: Request, res: Response) => void | Promise<void>;
 }
 
@@ -43,12 +44,8 @@ export default class Router {
                 }
             };
 
-            // Register the routes in the Express app
-            if (middleware && middleware.length) {
-                this.app[method](path, ...middleware, controllerWrapper);
-            } else {
-                this.app[method](path, controllerWrapper);
-            }
+            // Register the routes in the Express app with optional chaining
+            this.app[method]?.(path, ...(middleware || []), controllerWrapper);
 
             LoggerUtils.info(`Route registered: [${method.toUpperCase()}] ${path}`);
         });
