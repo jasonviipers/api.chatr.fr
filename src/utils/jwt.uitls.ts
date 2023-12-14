@@ -1,5 +1,5 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
-import { UserRole } from '@prisma/client';
+import { Role } from '@prisma/client';
 import 'dotenv/config';
 import { LoggerUtils } from './logger.utils'; // Ensure this import is correct.
 
@@ -7,7 +7,7 @@ interface JwtPayload {
     id: string;
     name: string;
     email: string;
-    role: UserRole;
+    role: Role;
 }
 
 export default class JwtUtils {
@@ -28,7 +28,7 @@ export default class JwtUtils {
 
         if (!secretKey) {
             LoggerUtils.error('JWT_SECRET_KEY is not defined'); // Log error message
-            process.exit(1); // Exit process with a failure code
+            throw new Error('JWT_SECRET_KEY is not defined');
         }
 
         try {
