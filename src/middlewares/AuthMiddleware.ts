@@ -24,7 +24,7 @@ export default class AuthMiddleware {
     static authorize(roles: string[]) {
         return (req: Request, res: Response, next: NextFunction): void => {
             try {
-                const user = (req as any).user;
+                const user = req.user;
                 if (!user) throw new Error('No user found');
 
                 if (!roles.includes(user.role)) throw new Error('Unauthorized');
