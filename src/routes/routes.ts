@@ -41,22 +41,6 @@ export default [
             return new AuthController(req, res, next).resetPassword();
         },
     },
-
-    // Messages
-    // {
-    //     method: 'get',
-    //     path: '/messages',
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).getAllMessages();
-    //     },
-    // },
-    // {
-    //     method: 'get',
-    //     path: '/messages/:id',
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).getMessageById();
-    //     },
-    // },
     {
         method: 'post',
         path: '/messages',
@@ -65,38 +49,6 @@ export default [
             return new MessageController(req, res, next).createMessage();
         },
     },
-    // {
-    //     method: 'patch',
-    //     path: '/messages/:id',
-    //     middleware: [AuthMiddleware.authenticate],
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).updateMessage();
-    //     },
-    // },
-    // {
-    //     method: 'delete',
-    //     path: '/messages/:id',
-    //     middleware: [AuthMiddleware.authenticate],
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).deleteMessage();
-    //     },
-    // }
-
-    // Communities routes
-    // {
-    //     method: 'get',
-    //     path: '/communities',
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).getAllCommunities();
-    //     },
-    // },
-    // {
-    //     method: 'get',
-    //     path: '/communities/:id',
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).getCommunityById();
-    //     },
-    // },
     {
         method: 'post',
         path: '/communities',
@@ -105,20 +57,4 @@ export default [
             return new CommunityController(req, res, next).createCommunity();
         },
     },
-    // {
-    //     method: 'patch',
-    //     path: '/communities/:id',
-    //     middleware: [AuthMiddleware.authenticate],
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).updateCommunity();
-    //     },
-    // },
-    // {
-    //     method: 'delete',
-    //     path: '/communities/:id',
-    //     middleware: [AuthMiddleware.authenticate],
-    //     controller: (req: Request, res: Response, next: NextFunction) => {
-    //         return new MessageController(req, res, next).deleteCommunity();
-    //     },
-    // }
 ];

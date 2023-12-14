@@ -124,17 +124,18 @@ export default class AuthController {
             }
 
             // Generate access token
-            const token = JwtUtils.sign({
+            const accessToken = JwtUtils.sign({
                 id: user.id,
+                imageUrl: user.imageUrl || '',
                 name: user.name,
                 email: user.email,
                 role: user.role,
             });
-
+     
             // Send response
             return this.response.status(HttpStatusCodes.OK).json({
                 message: 'User logged in successfully.',
-                data: token,
+                data: { accessToken },
             });
         } catch (error) {
             return this.handleErrors('login', error as Error);

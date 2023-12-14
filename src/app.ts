@@ -2,11 +2,11 @@ import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import swaggerUi from 'swagger-ui-express';
+// import swaggerUi from 'swagger-ui-express';
 import Router from './services/router.services';
 import PeerServer from './services/peer.services';
 import SocketServer from './services/socket.services';
-import specs from './utils/swaggerConfig.utils';
+// import specs from './utils/swaggerConfig.utils';
 // import Redis from './utils/redis.utils';
 
 const app = express();

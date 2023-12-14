@@ -3,10 +3,11 @@ import { Role } from '@prisma/client';
 import 'dotenv/config';
 import { LoggerUtils } from './logger.utils'; // Ensure this import is correct.
 
-export interface JwtPayload {
+export interface JwtPayload extends Record<string, unknown> {
     id: string;
     name: string;
     email: string;
+    imageUrl: string;
     role: Role;
 }
 
