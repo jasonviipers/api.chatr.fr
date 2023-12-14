@@ -1,22 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
-import { z } from 'zod';
-import { Prisma } from '@prisma/client';
-import MessageService from '../repositories/message.services';
+import MessageRepository from '../repositories/message.repository';
+import UserRepository from '../repositories/user.repository';
 import { HttpStatusCodes } from '../utils/httpStatusCodes.utils';
 import { LoggerUtils } from '../utils/logger.utils';
-import { createMessageSchema } from '../utils/validate.utils';
+import { createMessageSchema } from '../schema/message.schema';
 
 export default class MessageController {
     protected request: Request;
     protected response: Response;
     protected next: NextFunction;
-    protected messageService: MessageService;
+    protected messageRepo: MessageRepository;
+    protected userRepo: UserRepository;
 
     constructor(request: Request, response: Response, next: NextFunction) {
         this.request = request;
         this.response = response;
         this.next = next;
-        this.messageService = new MessageService();
+        this.messageRepo = new MessageRepository();
+        this.userRepo = new UserRepository();
     }
 
     private async handleErrors(methodName: string, error: Error): Promise<Response> {
@@ -26,81 +27,32 @@ export default class MessageController {
         });
     }
 
-    async getAllMessages() {
-        try {
-            const messages = await this.messageService.getAllMessages();
-            return this.response.status(HttpStatusCodes.OK).json(messages);
-        } catch (error) {
-            return this.handleErrors('fetching all messages', error as Error);
-        }
-    }
-
-    async getMessageById() {
-        try {
-            const messageId = this.request.params.id;
-            const message = await this.messageService.getMessageById({ id: messageId });
-            if (!message) {
-                return this.response.status(HttpStatusCodes.NOT_FOUND).json({ message: 'Message not found.' });
-            }
-            return this.response.status(HttpStatusCodes.OK).json(message);
-        } catch (error) {
-            return this.handleErrors('fetching message by id', error as Error);
-        }
-    }
-
     async createMessage() {
         try {
-            const { content, meetingId, userId } = createMessageSchema.parse(this.request.body);
+            // Validate Input
+            const validatedInput = await createMessageSchema.validateSync(this.request.body);
 
-            const message = await this.messageService.createMessage({
-                content,
-                userId,
-                meeting: { connect: { id: meetingId } },
-            });
-
-            return this.response.status(HttpStatusCodes.CREATED).json(message);
-        } catch (error) {
-            // Handle validation errors
-            if (error instanceof z.ZodError) {
-                return this.response.status(HttpStatusCodes.BAD_REQUEST).json({
-                    message: error.errors.map((err) => err.message),
+            // Check if the sender exists
+            const sender = await this.userRepo.getUserById({ id: validatedInput.senderId });
+            if (!sender) {
+                return this.response.status(HttpStatusCodes.NOT_FOUND).json({
+                    message: 'Sender not found.',
                 });
             }
 
-            // Handle known database errors
-            if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                // Example: Unique constraint violation
-                if (error.code === 'P2002') {
-                    return this.response.status(HttpStatusCodes.BAD_REQUEST).json({
-                        message: 'A message with the same content already exists.',
-                    });
-                }
-            }
-
-            return this.response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-                message: 'An error occurred during message creation.',
+            // Create the message without specifying a community
+            const message = await this.messageRepo.createMessage({
+                body: validatedInput.body,
+                senderId: validatedInput.senderId,
             });
-        }
-    }
 
-    async updateMessage() {
-        try {
-            const messageId = this.request.params.id;
-            const messageData = this.request.body;
-            const message = await this.messageService.updateMessage({ id: messageId }, messageData);
-            return this.response.status(HttpStatusCodes.OK).json(message);
+            // Return the message
+            return this.response.status(HttpStatusCodes.CREATED).json({
+                message: 'Message created.',
+                data: message,
+            });
         } catch (error) {
-            return this.handleErrors('updating message', error as Error);
-        }
-    }
-
-    async deleteMessage() {
-        try {
-            const messageId = this.request.params.id;
-            const deletedMessage = await this.messageService.deleteMessageById({ id: messageId });
-            return this.response.status(HttpStatusCodes.OK).json(deletedMessage);
-        } catch (error) {
-            return this.handleErrors('deleting message', error as Error);
+            return this.handleErrors('createMessage', error as Error);
         }
     }
 }

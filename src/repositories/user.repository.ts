@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { DatabaseClient } from '../database';
 
 export default class UserRepository {

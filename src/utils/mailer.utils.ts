@@ -47,7 +47,7 @@ export default class MailerUtils {
 
     async sendWelcomeEmail(to: string, name: string) {
         const subject = 'Welcome to Our Platform!';
-        const html = `<p>Hi ${name},</p><p>Thank you for joining us! We're thrilled to have you.</p>`;
+        const html = `<p>Hi "${name}",</p><p>Thank you for joining us! We're thrilled to have you.</p>`;
         await this.sendMail(to, subject, html);
     }
 
@@ -57,7 +57,7 @@ export default class MailerUtils {
         await this.sendMail(to, subject, html);
     }
 
-    async sendPasswordChangeNotification(to: string) {
+    async sendPasswordResetConfirmationEmail(to: string) {
         const subject = 'Your Password Has Been Changed';
         const html = `<p>Your password has been successfully changed. If you did not initiate this change, please contact support immediately.</p>`;
         await this.sendMail(to, subject, html);

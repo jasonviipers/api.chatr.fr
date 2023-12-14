@@ -2,7 +2,7 @@ node_modules
 # Keep environment variables out of version control
 .env
 .env.local
-logs
+logs/*
 
 logs
 *.log
@@ -12,3 +12,11 @@ yarn-debug.log*
 yarn-error.log*
 
 build
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Jest coverage
+coverage/
+

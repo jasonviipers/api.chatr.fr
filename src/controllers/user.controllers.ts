@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import UserService from '../repositories/user.services';
+import UserService from '../repositories/user.repository';
 import { HttpStatusCodes } from '../utils/httpStatusCodes.utils';
 import { LoggerUtils } from '../utils/logger.utils';
+
 //TODO: How To Implement Caching in Node.js Using Redis
+
 export default class UserController {
     protected request: Request;
     protected response: Response;

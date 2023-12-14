@@ -3,62 +3,103 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// A Chat App with Prisma Node.js and React Native
+// Features of the chat app :
+// 1. User can create an account
+// 2. User can login to their account
+// 3. User can create a community
+// 4. User can join a community
+// 5. User can send a message to a community
+// 6. User can see messages in a community
+// 7. User can see members in a community
+// 8. User can leave a community
+// 9. User can delete a community
+// 10. User can delete a message
+// 11. User can delete their account
+// 12. User can reset their password
+// 13. User can update their profile
+// 14. User can update their password
+// 15. User can update their email
+// 16. User can update their name
+// 17. User can update their profile image
+// 18. User can update their community name
+// 19. User can update their community image
+// 20. User can update their community description
+// 21. User can update their community slug
+// 22. User can update their community role
+// 23. User can update their community member role
+// 24. User can update their community member status
+// 25. User can update their community member
+// 26. User can sent  direct message to another user
+// 27. User can see direct messages
+// 28. User can delete direct messages
+// 29. User can update direct messages
+// 30. User can see direct message members
+// 31. User can sent direct message to another user without being a member of a community
+
+//Stay connected with a community 
+// Communities bring members together in topic-based groups.
+// Any community you're added to will appear here.
+
 model User {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  email          String      @unique
-  password       String      
-  role           UserRole    @default(USER)
-  meetings       Meeting[]
-  verified       Boolean     @default(false)
-  verifyToken    String?     @unique
-  verifyExpires  DateTime?   // New field for token expiration
-  resetToken     String?     @unique
-  resetExpires   DateTime?   // New field for token expiration
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  deletedAt      DateTime?   // New field for soft deletes
+  id                  String            @id @default(uuid())
+  name                String
+  imageUrl            String?
+  email               String            @unique
+  password            String
+  isVerified          Boolean           @default(false)
+  verifyCode          String?           @unique
+  verifyCodeExpiresAt DateTime? // New field for token expiration
+  provider            String?
+  passwordResetToken  String?           @unique // New field for password reset
+  passwordResetAt     DateTime?
+  role                Role              @default(USER) // New field for user roles
+  deletedAt           DateTime? // New field for soft deletes
+  CommunityMember     CommunityMember[]
+  Message             Message[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 }
 
-model Meeting {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String?
-  startTime     DateTime
-  endTime       DateTime
-  hostId        String        @db.ObjectId
-  host          User          @relation(fields: [hostId], references: [id])
-  participants  Participant[]
-  messages      Message[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  deletedAt     DateTime?     // New field for soft deletes
+model Community {
+  id              String            @id @default(uuid())
+  name            String            @unique
+  slug            String            @unique
+  CommunityMember CommunityMember[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime? // New field for soft deletes
 }
 
-model Participant {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  meetingId String   @db.ObjectId
-  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  joinedAt  DateTime @default(now())
+model CommunityMember {
+  id          String    @id @default(uuid())
+  community   Community @relation(fields: [communityId], references: [id])
+  communityId String
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  role        Role      @default(MEMBER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // New field for soft deletes
 }
 
 model Message {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  content   String
-  file      String?
-  userId    String   @db.ObjectId
-  meetingId String   @db.ObjectId
-  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  body      String
+  sender    User      @relation(fields: [senderId], references: [id])
+  senderId  String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // New field for soft deletes
 }
 
-enum UserRole {
-  USER
+enum Role {
   ADMIN
+  MEMBER
   MODERATOR
+  USER // New role for users who are not members of a community
 }
