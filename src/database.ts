@@ -3,17 +3,21 @@ import { PrismaClient } from '@prisma/client';
 export class DatabaseClient {
     private static instance: PrismaClient;
 
-    private constructor() {}
+    private constructor() {
+        // Prevent instantiation
+    }
+
+    static {
+        // Initialize the instance when the class is loaded
+        DatabaseClient.instance = new PrismaClient();
+    }
 
     public static getInstance(): PrismaClient {
-        if (!DatabaseClient.instance) {
-            DatabaseClient.instance = new PrismaClient();
-        }
         return DatabaseClient.instance;
     }
 
     public user = DatabaseClient.getInstance().user;
-    public meeting = DatabaseClient.getInstance().meeting;
-    public participant = DatabaseClient.getInstance().participant;
     public message = DatabaseClient.getInstance().message;
+    public community = DatabaseClient.getInstance().community;
+    public communityMember = DatabaseClient.getInstance().communityMember;
 }
