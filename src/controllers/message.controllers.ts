@@ -4,6 +4,7 @@ import UserRepository from '../repositories/user.repository';
 import { HttpStatusCodes } from '../utils/httpStatusCodes.utils';
 import { LoggerUtils } from '../utils/logger.utils';
 import { createMessageSchema } from '../schema/message.schema';
+import { Message, MessageStatus } from '@prisma/client';
 
 export default class MessageController {
     protected request: Request;
@@ -27,6 +28,21 @@ export default class MessageController {
         });
     }
 
+    private async updateStatusForReceivedMessages(messages: Message[], senderId: string): Promise<void> {
+        const updatePromises = messages
+            .filter((message) => message.receiverId === senderId)
+            .map(async (message) => {
+                try {
+                    await this.messageRepo.updateMessage({ id: message.id }, { status: MessageStatus.READ });
+                } catch (error) {
+                    LoggerUtils.error(`Error updating message status: ${error}`);
+                    // Handle the error, log it, or take appropriate action
+                }
+            });
+
+        await Promise.all(updatePromises);
+    }
+
     async createMessage() {
         try {
             // Validate Input
@@ -44,6 +60,7 @@ export default class MessageController {
             const message = await this.messageRepo.createMessage({
                 body: validatedInput.body,
                 senderId: validatedInput.senderId,
+                receiverId: validatedInput.receiverId,
             });
 
             // Return the message
@@ -53,6 +70,35 @@ export default class MessageController {
             });
         } catch (error) {
             return this.handleErrors('createMessage', error as Error);
+        }
+    }
+
+    async getMessagesBySenderId() {
+        try {
+            // Get the senderId from the request params
+            const senderId = this.request.params.senderId;
+
+            // Check if the sender exists
+            const sender = await this.userRepo.getUserById({ id: senderId });
+            if (!sender) {
+                return this.response.status(HttpStatusCodes.NOT_FOUND).json({
+                    message: 'Sender not found.',
+                });
+            }
+
+            // Get the messages
+            const messages = await this.messageRepo.getMessagesBySenderId({ senderId });
+
+            //if the messages is received by the sender then update the status to read
+            await this.updateStatusForReceivedMessages(messages, senderId);
+
+            // Return the messages
+            return this.response.status(HttpStatusCodes.OK).json({
+                message: 'Messages retrieved.',
+                data: messages,
+            });
+        } catch (error) {
+            return this.handleErrors('getMessagesBySenderId', error as Error);
         }
     }
 }

@@ -32,6 +32,13 @@ export default class MessageRepository {
         });
     }
 
+    async getMessagesBySenderId(where: Prisma.MessageWhereInput, select?: Prisma.MessageSelect) {
+        return await this.prisma.message.findMany({
+            where,
+            select,
+        });
+    }
+
     async updateMessage(where: Prisma.MessageWhereUniqueInput, data: Prisma.MessageUpdateInput, select?: Prisma.MessageSelect) {
         return await this.prisma.message.update({
             where,

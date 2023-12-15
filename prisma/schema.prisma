@@ -7,44 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// A Chat App with Prisma Node.js and React Native
-// Features of the chat app :
-// 1. User can create an account
-// 2. User can login to their account
-// 3. User can create a community
-// 4. User can join a community
-// 5. User can send a message to a community
-// 6. User can see messages in a community
-// 7. User can see members in a community
-// 8. User can leave a community
-// 9. User can delete a community
-// 10. User can delete a message
-// 11. User can delete their account
-// 12. User can reset their password
-// 13. User can update their profile
-// 14. User can update their password
-// 15. User can update their email
-// 16. User can update their name
-// 17. User can update their profile image
-// 18. User can update their community name
-// 19. User can update their community image
-// 20. User can update their community description
-// 21. User can update their community slug
-// 22. User can update their community role
-// 23. User can update their community member role
-// 24. User can update their community member status
-// 25. User can update their community member
-// 26. User can sent  direct message to another user
-// 27. User can see direct messages
-// 28. User can delete direct messages
-// 29. User can update direct messages
-// 30. User can see direct message members
-// 31. User can sent direct message to another user without being a member of a community
-
-//Stay connected with a community 
-// Communities bring members together in topic-based groups.
-// Any community you're added to will appear here.
-
 model User {
   id                  String            @id @default(uuid())
   name                String
@@ -58,11 +20,12 @@ model User {
   passwordResetToken  String?           @unique // New field for password reset
   passwordResetAt     DateTime?
   role                Role              @default(USER) // New field for user roles
-  deletedAt           DateTime? // New field for soft deletes
+  MessageSent         Message[]         @relation("MessageSent") // Removed fields and references
+  MessageReceived     Message[]         @relation("MessageReceived") // Removed fields and references
   CommunityMember     CommunityMember[]
-  Message             Message[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime? // New field for soft deletes
 }
 
 model Community {
@@ -82,24 +45,44 @@ model CommunityMember {
   user        User      @relation(fields: [userId], references: [id])
   userId      String
   role        Role      @default(MEMBER)
+  message     Message[]
+  status      status    @default(ACTIVE)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime? // New field for soft deletes
+  deletedAt   DateTime?
 }
 
 model Message {
-  id        String    @id @default(uuid())
-  body      String
-  sender    User      @relation(fields: [senderId], references: [id])
-  senderId  String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime? // New field for soft deletes
+  id                String           @id @default(uuid())
+  body              String
+  sender            User             @relation("MessageSent", fields: [senderId], references: [id])
+  senderId          String
+  receiver          User             @relation("MessageReceived", fields: [receiverId], references: [id])
+  receiverId        String
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  deletedAt         DateTime?
+  CommunityMember   CommunityMember? @relation(fields: [communityMemberId], references: [id])
+  communityMemberId String?
+  status            MessageStatus    @default(UNREAD)
 }
 
 enum Role {
   ADMIN
   MEMBER
   MODERATOR
-  USER // New role for users who are not members of a community
+  USER
+}
+
+enum MessageStatus {
+  SENT
+  RECEIVED
+  READ
+  UNREAD
+}
+
+enum status {
+  ACTIVE
+  INACTIVE
+  DELETED
 }
