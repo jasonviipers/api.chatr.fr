@@ -7,7 +7,7 @@ import Router from './services/router.services';
 import PeerServer from './services/peer.services';
 import SocketServer from './services/socket.services';
 // import specs from './utils/swaggerConfig.utils';
-// import Redis from './utils/redis.utils';
+import Redis from './utils/redis.utils';
 
 const app = express();
 const server = http.createServer(app);
@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Connect to Redis
-// Redis.getInstance().connect();
+Redis.getInstance().connect();
 
 // Swagger
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
