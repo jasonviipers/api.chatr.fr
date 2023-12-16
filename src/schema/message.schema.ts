@@ -5,3 +5,7 @@ export const createMessageSchema = object({
     senderId: string().required('Sender is required.'),
     receiverId: string().required('Receiver is required.'),
 });
+
+export const getMessagesBySenderIdSchema = object({
+    senderId: string().required('Sender is required.'),
+});

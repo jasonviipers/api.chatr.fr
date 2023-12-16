@@ -3,9 +3,9 @@ import MessageRepository from '../repositories/message.repository';
 import UserRepository from '../repositories/user.repository';
 import { HttpStatusCodes } from '../utils/httpStatusCodes.utils';
 import { LoggerUtils } from '../utils/logger.utils';
-import { createMessageSchema } from '../schema/message.schema';
+import { createMessageSchema, getMessagesBySenderIdSchema } from '../schema/message.schema';
 import { Message, MessageStatus } from '@prisma/client';
-import Redis from '../utils/redis.utils';
+import { client } from '../utils/redis.utils';
 
 export default class MessageController {
     protected request: Request;
@@ -29,16 +29,22 @@ export default class MessageController {
         });
     }
 
-    private async getCacheMessages(key:string): Promise<Message[]> {
-        const messages = await Redis.getInstance().get(key);
-        if (messages) {
-            return JSON.parse(messages);
+    private async getCacheMessages(senderId: string): Promise<Message[]> {
+        try {
+            const cachedMessages = await client.get(`messages:${senderId}`);
+            if (cachedMessages) {
+                return JSON.parse(cachedMessages);
+            }
+            return [];
+        } catch (error) {
+            LoggerUtils.error(`Error getting cached messages: ${error}`);
+            return [];
         }
-        return [];
     }
 
-    private async cacheMessages(key:string, messages: Message[]): Promise<void> {
-        await Redis.getInstance().set(key, JSON.stringify(messages));
+    private async cacheMessages(senderId: string, messages: Message[]): Promise<void> {
+        const cacheKey = `messages:${senderId}`;
+        await client.set(cacheKey, JSON.stringify(messages)); // cache the messages
     }
 
     private async updateStatusForReceivedMessages(messages: Message[], senderId: string): Promise<void> {
@@ -46,7 +52,15 @@ export default class MessageController {
             .filter((message) => message.receiverId === senderId)
             .map(async (message) => {
                 try {
-                    await this.messageRepo.updateMessage({ id: message.id }, { status: MessageStatus.READ });
+                    await this.messageRepo.updateMessage(
+                        {
+                            id: message.id,
+                        },
+                        {
+                            status: MessageStatus.READ,
+                            readAt: new Date(),
+                        },
+                    );
                 } catch (error) {
                     LoggerUtils.error(`Error updating message status: ${error}`);
                     // Handle the error, log it, or take appropriate action
@@ -89,23 +103,26 @@ export default class MessageController {
     async getMessagesBySenderId() {
         try {
             // Get the senderId from the request params
-            const senderId = this.request.params.senderId;
-            const cacheKey = `messages:${senderId}`;
+            const validateData = { senderId: this.request.params.id };
+            const params = await getMessagesBySenderIdSchema.validateSync(validateData);
 
-            //check if the messages are cached
-            let messages = await this.getCacheMessages(cacheKey);
+            // Use Redis cache if available
+            const cacheKey = `messages:${params.senderId}`;
+            const cachedMessages = await this.getCacheMessages(cacheKey);
 
-            //if the messages are not cached then fetch from the database
-            if (!messages.length) {
-                // Get the messages
-                messages = await this.messageRepo.getMessagesBySenderId({ senderId });
-
-                //cache the messages
-                await this.cacheMessages(cacheKey, messages);
+            if (cachedMessages.length > 0) {
+                return this.response.status(HttpStatusCodes.OK).json({
+                    message: 'Messages retrieved from cache.',
+                    data: cachedMessages,
+                });
             }
 
-            //if the messages is received by the sender then update the status to read
-            await this.updateStatusForReceivedMessages(messages, senderId);
+            // If not in cache, fetch messages from the database
+            const messages = await this.messageRepo.getMessagesBySenderId({ receiverId: params.senderId });
+
+            // Update message status and cache the messages
+            await this.updateStatusForReceivedMessages(messages, params.senderId);
+            await this.cacheMessages(cacheKey, messages);
 
             // Return the messages
             return this.response.status(HttpStatusCodes.OK).json({
@@ -113,7 +130,10 @@ export default class MessageController {
                 data: messages,
             });
         } catch (error) {
-            return this.handleErrors('getMessagesBySenderId', error as Error);
+            LoggerUtils.error(`Error in getMessagesBySenderId: ${error}`);
+            return this.response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: 'An error occurred.',
+            });
         }
     }
 }

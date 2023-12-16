@@ -41,6 +41,7 @@ export default [
             return new AuthController(req, res, next).resetPassword();
         },
     },
+    // Messages
     {
         method: 'post',
         path: '/messages',
@@ -49,12 +50,44 @@ export default [
             return new MessageController(req, res, next).createMessage();
         },
     },
+    // {
+    //     method: 'get',
+    //     path: '/messages',
+    //     middleware: [AuthMiddleware.authenticate],
+    //     controller: (req: Request, res: Response, next: NextFunction) => {
+    //         return new MessageController(req, res, next).getAllMessages();
+    //     },
+    // },
+    // {
+    //     method: 'get',
+    //     path: '/messages/:id',
+    //     middleware: [AuthMiddleware.authenticate],
+    //     controller: (req: Request, res: Response, next: NextFunction) => {
+    //         return new MessageController(req, res, next).getMessage();
+    //     },
+    // },
     {
-        method: 'post',
-        path: '/communities',
-        middleware: [AuthMiddleware.authenticate, AuthMiddleware.authorize(['USER', 'MODERATOR'])],
+        method: 'get',
+        path: '/messages/sender/:id',
+        middleware: [AuthMiddleware.authenticate],
         controller: (req: Request, res: Response, next: NextFunction) => {
-            return new CommunityController(req, res, next).createCommunity();
+            return new MessageController(req, res, next).getMessagesBySenderId();
         },
     },
+    // {
+    //     method: 'put',
+    //     path: '/messages/:id',
+    //     middleware: [AuthMiddleware.authenticate],
+    //     controller: (req: Request, res: Response, next: NextFunction) => {
+    //         return new MessageController(req, res, next).updateMessage();
+    //     },
+    // },
+    // {
+    //     method: 'delete',
+    //     path: '/messages/:id',
+    //     middleware: [AuthMiddleware.authenticate],
+    //     controller: (req: Request, res: Response, next: NextFunction) => {
+    //         return new MessageController(req, res, next).deleteMessage();
+    //     },
+    // },
 ];

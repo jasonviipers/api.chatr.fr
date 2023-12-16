@@ -56,15 +56,16 @@ model Message {
   id                String           @id @default(uuid())
   body              String
   sender            User             @relation("MessageSent", fields: [senderId], references: [id])
-  senderId          String
+  senderId          String           @unique
   receiver          User             @relation("MessageReceived", fields: [receiverId], references: [id])
-  receiverId        String
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  deletedAt         DateTime?
+  receiverId        String           @unique
   CommunityMember   CommunityMember? @relation(fields: [communityMemberId], references: [id])
   communityMemberId String?
   status            MessageStatus    @default(UNREAD)
+  readAt            DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  deletedAt         DateTime?
 }
 
 enum Role {
