@@ -29,7 +29,14 @@ export default class MessageController {
         });
     }
 
-    private static  async getCacheMessages(senderId: string): Promise<Message[]> {
+    /**
+     * Retrieves cached messages from Redis for a specific sender.
+     *
+     * @param {string} senderId - The ID of the sender.
+     * @returns {Promise<Message[]>} A Promise that resolves with an array of cached messages.
+     * @throws {Error} If there is an issue during the retrieval process.
+     */
+    private static async getCacheMessages(senderId: string): Promise<Message[]> {
         try {
             const cachedMessages = await client.get(`messages:${senderId}`);
             if (cachedMessages) {
@@ -42,7 +49,15 @@ export default class MessageController {
         }
     }
 
-    private static  async cacheMessages(senderId: string, messages: Message[]): Promise<void> {
+    /**
+     * Caches messages in Redis for a specific sender.
+     *
+     * @param {string} senderId - The ID of the sender.
+     * @param {Message[]} messages - The messages to be cached.
+     * @returns {Promise<void>} A Promise that resolves when the caching is complete.
+     * @throws {Error} If there is an issue during the caching process.
+     */
+    private static async cacheMessages(senderId: string, messages: Message[]): Promise<void> {
         const cacheKey = `messages:${senderId}`;
         await client.set(cacheKey, JSON.stringify(messages)); // cache the messages
     }
