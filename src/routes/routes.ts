@@ -84,6 +84,7 @@ export default [
     },
     {
         method: 'delete',
+        path: '/messages/:id',
         middleware: [AuthMiddleware.authenticate, AuthMiddleware.authorize(['USER', 'ADMIN'])],
         controller: (req: Request, res: Response, next: NextFunction) => {
             return new MessageController(req, res, next).deleteMessage();
