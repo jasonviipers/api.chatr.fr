@@ -1,5 +1,4 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
-import { Omit } from 'lodash';
 import { Role } from '@prisma/client';
 import 'dotenv/config';
 import { LoggerUtils } from './logger.utils'; // Ensure this import is correct.
@@ -33,10 +32,10 @@ export default class JwtUtils {
         const refreshToken = jwt.sign(payload, refreshSecretKey, { expiresIn: refreshExpiresIn, ...options });
 
         // Store refresh token in Redis
-        client.set(`refreshToken:${payload.id}`, refreshToken),
-            {
-                EX: parseInt(refreshExpiresIn),
-            };
+        client.set(`refreshToken:${payload.id}`, refreshToken, {
+            EX: parseInt(refreshExpiresIn),
+        });
+       
 
         return jwt.sign(payload, secretKey, { expiresIn, ...options });
     }

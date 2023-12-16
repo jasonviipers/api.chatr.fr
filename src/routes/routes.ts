@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import AuthController from '../controllers/auth.controllers';
 import AuthMiddleware from '../middlewares/AuthMiddleware';
 import MessageController from '../controllers/message.controllers';
-import CommunityController from '../controllers/community.controllers';
 
 export default [
     // Auth
