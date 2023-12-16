@@ -29,7 +29,7 @@ export default class MessageController {
         });
     }
 
-    private async getCacheMessages(senderId: string): Promise<Message[]> {
+    private static  async getCacheMessages(senderId: string): Promise<Message[]> {
         try {
             const cachedMessages = await client.get(`messages:${senderId}`);
             if (cachedMessages) {
@@ -42,7 +42,7 @@ export default class MessageController {
         }
     }
 
-    private async cacheMessages(senderId: string, messages: Message[]): Promise<void> {
+    private static  async cacheMessages(senderId: string, messages: Message[]): Promise<void> {
         const cacheKey = `messages:${senderId}`;
         await client.set(cacheKey, JSON.stringify(messages)); // cache the messages
     }
@@ -108,7 +108,7 @@ export default class MessageController {
 
             // Use Redis cache if available
             const cacheKey = `messages:${params.senderId}`;
-            const cachedMessages = await this.getCacheMessages(cacheKey);
+            const cachedMessages = await MessageController.getCacheMessages(cacheKey);
 
             if (cachedMessages.length > 0) {
                 return this.response.status(HttpStatusCodes.OK).json({
@@ -122,7 +122,7 @@ export default class MessageController {
 
             // Update message status and cache the messages
             await this.updateStatusForReceivedMessages(messages, params.senderId);
-            await this.cacheMessages(cacheKey, messages);
+            await MessageController.cacheMessages(cacheKey, messages);
 
             // Return the messages
             return this.response.status(HttpStatusCodes.OK).json({
