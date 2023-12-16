@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import { DatabaseClient } from "../database";
+import { Prisma } from '@prisma/client';
+import { DatabaseClient } from '../database';
 
 export default class MessageRepository {
     private prisma: DatabaseClient;
@@ -39,7 +39,11 @@ export default class MessageRepository {
         });
     }
 
-    async updateMessage(where: Prisma.MessageWhereUniqueInput, data: Prisma.MessageUpdateInput, select?: Prisma.MessageSelect) {
+    async updateMessage(
+        where: Prisma.MessageWhereUniqueInput,
+        data: Prisma.MessageUpdateInput,
+        select?: Prisma.MessageSelect,
+    ) {
         return await this.prisma.message.update({
             where,
             data,
@@ -47,9 +51,13 @@ export default class MessageRepository {
         });
     }
 
-    async deleteMessage(where: Prisma.MessageWhereUniqueInput) {
+    async deleteMessageById(where: Prisma.MessageWhereUniqueInput) {
         return await this.prisma.message.delete({
             where,
         });
+    }
+
+    async deleteAllMessages() {
+        return await this.prisma.message.deleteMany();
     }
 }

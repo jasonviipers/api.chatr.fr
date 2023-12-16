@@ -1,4 +1,4 @@
-import { object, string, ref } from 'yup';
+import { object, string } from 'yup';
 
 export const createCommunitySchema = object({
     name: string().required('Name is required.').min(1, 'Name must be at least 1 character long.'),

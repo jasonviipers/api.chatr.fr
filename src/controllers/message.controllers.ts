@@ -151,4 +151,56 @@ export default class MessageController {
             });
         }
     }
+
+    async getAllMessages() {
+        try {
+            const messages = await this.messageRepo.getAllMessages();
+            return this.response.status(HttpStatusCodes.OK).json(messages);
+        } catch (error) {
+            return this.handleErrors('getAllMessages', error as Error);
+        }
+    }
+
+    async getMessage() {
+        try {
+            const messageId = this.request.params.id;
+            const message = await this.messageRepo.getMessage({ id: messageId });
+            if (!message) {
+                return this.response.status(HttpStatusCodes.NOT_FOUND).json({ message: 'Message not found.' });
+            }
+            return this.response.status(HttpStatusCodes.OK).json(message);
+        } catch (error) {
+            return this.handleErrors('getMessage', error as Error);
+        }
+    }
+
+    async updateMessage() {
+        try {
+            const messageId = this.request.params.id;
+            const messageData = this.request.body;
+            const updatedMessage = await this.messageRepo.updateMessage({ id: messageId }, messageData);
+            return this.response.status(HttpStatusCodes.OK).json(updatedMessage);
+        } catch (error) {
+            return this.handleErrors('updateMessage', error as Error);
+        }
+    }
+
+    async deleteMessage() {
+        try {
+            const messageId = this.request.params.id;
+            const deletedMessage = await this.messageRepo.deleteMessageById({ id: messageId });
+            return this.response.status(HttpStatusCodes.OK).json(deletedMessage);
+        } catch (error) {
+            return this.handleErrors('deleteMessage', error as Error);
+        }
+    }
+
+    async deleteAllMessages() {
+        try {
+            const deletedMessages = await this.messageRepo.deleteAllMessages();
+            return this.response.status(HttpStatusCodes.OK).json(deletedMessages);
+        } catch (error) {
+            return this.handleErrors('deleteAllMessages', error as Error);
+        }
+    }
 }

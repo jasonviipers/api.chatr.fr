@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import UserService from '../repositories/user.repository';
 import { HttpStatusCodes } from '../utils/httpStatusCodes.utils';
 import { LoggerUtils } from '../utils/logger.utils';
+import { date } from 'yup';
 
 export default class UserController {
     protected request: Request;
@@ -21,6 +22,22 @@ export default class UserController {
         return this.response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
             message: `An error occurred during ${methodName}.`,
         });
+    }
+
+    async getMe() {
+        try {
+            const user = await this.userService.getUserById({ id: this.request.user.id });
+            if (!user) {
+                return this.response.status(HttpStatusCodes.NOT_FOUND).json({ message: 'User not found.' });
+            }
+            return this.response.status(HttpStatusCodes.OK).json({
+                data: {
+                    user,
+                },
+            });
+        } catch (error) {
+            return this.handleErrors('fetching user', error as Error);
+        }
     }
 
     async getAllUsers() {

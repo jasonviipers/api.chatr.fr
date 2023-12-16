@@ -324,4 +324,14 @@ export default class AuthController {
             return this.handleErrors('password reset', error as Error);
         }
     }
+
+    async logout() {
+        try {
+            return this.response.status(HttpStatusCodes.OK).json({ message: 'User logged out successfully.' });
+        } catch (error) {
+            return this.handleErrors('logout', error as Error);
+        }
+    }
+
+   
 }
