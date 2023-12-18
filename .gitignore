@@ -11,6 +11,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+#  Pnpm
+pnpm-debug.log*
+pnpm-lock.yaml
+
 build
 
 # Dependency directories
