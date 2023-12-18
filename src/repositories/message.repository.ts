@@ -8,7 +8,7 @@ export default class MessageRepository {
         this.prisma = DatabaseClient.getInstance();
     }
 
-    async createMessage(data: Prisma.MessageUncheckedCreateInput) {
+    async createMessage(data: Prisma.MessageCreateInput) {
         return await this.prisma.message.create({
             data,
         });

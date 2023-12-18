@@ -124,18 +124,18 @@ export default class AuthController {
             }
 
             // Generate access token
-            const accessToken = JwtUtils.sign({
+            const token = JwtUtils.sign({
                 id: user.id,
                 imageUrl: user.imageUrl || '',
                 name: user.name,
                 email: user.email,
                 role: user.role,
             });
-     
+
             // Send response
             return this.response.status(HttpStatusCodes.OK).json({
                 message: 'User logged in successfully.',
-                data: { accessToken },
+                data: { token },
             });
         } catch (error) {
             return this.handleErrors('login', error as Error);
@@ -325,13 +325,11 @@ export default class AuthController {
         }
     }
 
-    async logout() {
+    async logout(): Promise<Response> {
         try {
-            return this.response.status(HttpStatusCodes.OK).json({ message: 'User logged out successfully.' });
+            return await Promise.resolve(this.response.status(HttpStatusCodes.OK).json({ message: 'Logged out.' }));
         } catch (error) {
-            return this.handleErrors('logout', error as Error);
+            return Promise.reject(error);
         }
     }
-
-   
 }

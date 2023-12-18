@@ -6,7 +6,7 @@ export default class PeerServer {
     protected server: HttpServer;
     protected app: Express;
     protected config = {
-        path: '/', //adjusting path as per for the app's routing
+        path: '/peer', //adjusting path as per for the app's routing
         generateClientId: () => (Math.random() * 1000).toString(),
     };
 

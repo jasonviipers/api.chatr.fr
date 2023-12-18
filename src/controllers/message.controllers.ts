@@ -24,7 +24,7 @@ export default class MessageController {
 
     private async handleErrors(methodName: string, error: Error): Promise<Response> {
         LoggerUtils.error(`Error during ${methodName}: ${error.message}`);
-        return this.response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+        return await this.response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
             message: `An error occurred during ${methodName}.`,
         });
     }
@@ -64,7 +64,7 @@ export default class MessageController {
 
     private async updateStatusForReceivedMessages(messages: Message[], senderId: string): Promise<void> {
         const updatePromises = messages
-            .filter((message) => message.receiverId === senderId)
+            .filter((message) => message.senderId !== senderId)
             .map(async (message) => {
                 try {
                     await this.messageRepo.updateMessage(
@@ -101,8 +101,9 @@ export default class MessageController {
             // Create the message without specifying a community
             const message = await this.messageRepo.createMessage({
                 body: validatedInput.body,
-                senderId: validatedInput.senderId,
-                receiverId: validatedInput.receiverId,
+                sender: {
+                    connect: { id: validatedInput.senderId },
+                },
             });
 
             // Return the message
@@ -133,7 +134,11 @@ export default class MessageController {
             }
 
             // If not in cache, fetch messages from the database
-            const messages = await this.messageRepo.getMessagesBySenderId({ receiverId: params.senderId });
+            const messages = await this.messageRepo.getMessagesBySenderId({
+                sender: {
+                    id: params.senderId,
+                },
+            });
 
             // Update message status and cache the messages
             await this.updateStatusForReceivedMessages(messages, params.senderId);

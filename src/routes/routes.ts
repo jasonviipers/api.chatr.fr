@@ -45,7 +45,7 @@ export default [
     {
         method: 'post',
         path: '/messages',
-        middleware: [AuthMiddleware.authenticate],
+        middleware: [AuthMiddleware.authenticate, AuthMiddleware.authorize(['USER', 'ADMIN'])],
         controller: (req: Request, res: Response, next: NextFunction) => {
             return new MessageController(req, res, next).createMessage();
         },
@@ -53,7 +53,7 @@ export default [
     {
         method: 'get',
         path: '/messages',
-        middleware: [AuthMiddleware.authenticate, AuthMiddleware.authorize(['ADMIN'])],
+        middleware: [AuthMiddleware.authenticate, AuthMiddleware.authorize(['USER'])],
         controller: (req: Request, res: Response, next: NextFunction) => {
             return new MessageController(req, res, next).getAllMessages();
         },

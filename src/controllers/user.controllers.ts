@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import UserService from '../repositories/user.repository';
 import { HttpStatusCodes } from '../utils/httpStatusCodes.utils';
 import { LoggerUtils } from '../utils/logger.utils';
-import { date } from 'yup';
 
 export default class UserController {
     protected request: Request;
@@ -19,7 +18,7 @@ export default class UserController {
 
     private async handleErrors(methodName: string, error: Error): Promise<Response> {
         LoggerUtils.error(`Error during ${methodName}: ${error.message}`);
-        return this.response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+        return await this.response.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
             message: `An error occurred during ${methodName}.`,
         });
     }

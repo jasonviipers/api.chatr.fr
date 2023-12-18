@@ -15,27 +15,28 @@ model User {
   password            String
   isVerified          Boolean           @default(false)
   verifyCode          String?           @unique
-  verifyCodeExpiresAt DateTime? // New field for token expiration
+  verifyCodeExpiresAt DateTime? // Token expiration
   provider            String?
-  passwordResetToken  String?           @unique // New field for password reset
+  passwordResetToken  String?           @unique // Password reset token
   passwordResetAt     DateTime?
-  role                Role              @default(USER) // New field for user roles
-  MessageSent         Message[]         @relation("MessageSent") // Removed fields and references
-  MessageReceived     Message[]         @relation("MessageReceived") // Removed fields and references
+  role                Role              @default(USER)
+  MessageSent         Message[]         @relation("MessageSent")
   CommunityMember     CommunityMember[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
-  deletedAt           DateTime? // New field for soft deletes
+  deletedAt           DateTime? // Soft delete
 }
 
 model Community {
   id              String            @id @default(uuid())
   name            String            @unique
   slug            String            @unique
+  imageUrl        String?
+  inviteCode      String?           @unique
   CommunityMember CommunityMember[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  deletedAt       DateTime? // New field for soft deletes
+  deletedAt       DateTime? // Soft delete
 }
 
 model CommunityMember {
@@ -56,9 +57,7 @@ model Message {
   id                String           @id @default(uuid())
   body              String
   sender            User             @relation("MessageSent", fields: [senderId], references: [id])
-  senderId          String           @unique
-  receiver          User             @relation("MessageReceived", fields: [receiverId], references: [id])
-  receiverId        String           @unique
+  senderId          String
   CommunityMember   CommunityMember? @relation(fields: [communityMemberId], references: [id])
   communityMemberId String?
   status            MessageStatus    @default(UNREAD)
@@ -73,6 +72,7 @@ enum Role {
   MEMBER
   MODERATOR
   USER
+  GUEST
 }
 
 enum MessageStatus {

@@ -51,6 +51,7 @@ export default class CommunityController {
                         message: 'Creator user not found.',
                     });
                 }
+
                 // Associate the creator as a member with admin role
                 const adminMember = await this.communityMemberRepo.createCommunityMember({
                     role: 'ADMIN',
