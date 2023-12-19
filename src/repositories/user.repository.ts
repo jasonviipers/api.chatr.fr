@@ -15,13 +15,53 @@ export default class UserRepository {
     }
 
     async getAllUsers() {
-        return await this.prisma.user.findMany();
+        let { search, limit, offset } = { search: '', limit: 10, offset: 0 };
+        return await this.prisma.user.findMany({
+            where: {
+                OR: [
+                    { username: { contains: search } },
+                    { name: { contains: search } },
+                    { email: { contains: search } },
+                ],
+                NOT: [],
+            },
+            take: limit,
+            orderBy: {
+                createdAt: 'desc',
+            },
+            skip: offset,
+            include: { 
+                // posts: true,
+                // comments: true,
+                // likes: true,
+                // followers: true,
+                // following: true,
+                // rooms: true,
+                // messages: true,
+                MessageSent: true,
+            },
+        });
     }
 
     async getUser(where: Partial<Prisma.UserWhereUniqueInput>, select?: Prisma.UserSelect) {
         return await this.prisma.user.findFirst({
             where,
             select,
+        });
+    }
+
+    async getUserByIdentifier(identifier: string) {
+        return await this.prisma.user.findFirst({
+            where: {
+                OR: [
+                    {
+                        email: identifier,
+                    },
+                    {
+                        username: identifier,
+                    },
+                ],
+            },
         });
     }
 
@@ -43,6 +83,14 @@ export default class UserRepository {
         return await this.prisma.user.findUnique({
             where: {
                 email,
+            },
+        });
+    }
+
+    async getUserByUsername(username: string) {
+        return await this.prisma.user.findUnique({
+            where: {
+                username,
             },
         });
     }

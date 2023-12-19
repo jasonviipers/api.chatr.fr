@@ -48,6 +48,15 @@ export default class AuthController {
                 return this.response
                     .status(HttpStatusCodes.BAD_REQUEST)
                     .json({ message: 'User with this email already exists.' });
+
+            }
+
+            // Check if the username already exists
+            const existingUsername = await this.userService.getUserByUsername(validateData.username!);
+            if (existingUsername) {
+                return this.response
+                    .status(HttpStatusCodes.BAD_REQUEST)
+                    .json({ message: 'User with this username already exists.' });
             }
 
             // Hash the password
@@ -60,7 +69,6 @@ export default class AuthController {
             const verifyCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // Token valid for 10 minutes
 
             // Create the user
-
             const { confirmPassword, ...userData } = validateData;
             const user = await this.userService.createUser({
                 ...userData,
@@ -99,7 +107,7 @@ export default class AuthController {
             }
 
             // Retrieve the user from the database
-            const user = await this.userService.getUserByEmail(validateData.email!);
+            const user = await this.userService.getUserByIdentifier(validateData.identifier);
 
             // Check if the user exists
             if (!user) {
@@ -126,16 +134,17 @@ export default class AuthController {
             // Generate access token
             const token = JwtUtils.sign({
                 id: user.id,
-                imageUrl: user.imageUrl || '',
                 name: user.name,
                 email: user.email,
+                username: user.username,
+                imageUri: user.imageUri!,
                 role: user.role,
             });
 
             // Send response
             return this.response.status(HttpStatusCodes.OK).json({
                 message: 'User logged in successfully.',
-                data: { token },
+                token,
             });
         } catch (error) {
             return this.handleErrors('login', error as Error);

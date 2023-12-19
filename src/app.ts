@@ -2,12 +2,10 @@ import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-// import swaggerUi from 'swagger-ui-express';
 import Router from './services/router.services';
 import PeerServer from './services/peer.services';
 import SocketServer from './services/socket.services';
 import { client } from './utils/redis.utils';
-// import specs from './utils/swaggerConfig.utils';
 
 const app = express();
 const server = http.createServer(app);
@@ -23,10 +21,8 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Swagger
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-// Redis
+// Redis connection
 (async () => {
     await client.connect();
 })();

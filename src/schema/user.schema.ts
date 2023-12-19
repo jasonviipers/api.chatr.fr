@@ -1,7 +1,7 @@
 import { object, string, ref } from "yup";
 
 export const loginSchema = object({
-    email: string().email('Invalid email address.'),
+    identifier: string().required('Email or username is required.'),
     password: string().min(8, 'Password must be 8 or more characters long'),
 });
 
@@ -40,6 +40,7 @@ export const resetPasswordSchema = object({
 });
 
 export const registerSchema = object({
+    username : string().min(3, 'Username must be 3 or more characters long').required('Username is required'),
     name: string().min(3, 'First name must be 3 or more characters long').required('Name is required'),
     email: string().email('Invalid email address.').required('Email is required'), 
     password: string()

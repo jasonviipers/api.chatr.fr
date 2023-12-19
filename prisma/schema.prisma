@@ -10,7 +10,8 @@ datasource db {
 model User {
   id                  String            @id @default(uuid())
   name                String
-  imageUrl            String?
+  username            String            @unique
+  imageUri            String?
   email               String            @unique
   password            String
   isVerified          Boolean           @default(false)
@@ -31,7 +32,7 @@ model Community {
   id              String            @id @default(uuid())
   name            String            @unique
   slug            String            @unique
-  imageUrl        String?
+  imageUri        String?
   inviteCode      String?           @unique
   CommunityMember CommunityMember[]
   createdAt       DateTime          @default(now())
