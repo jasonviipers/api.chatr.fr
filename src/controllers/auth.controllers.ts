@@ -52,7 +52,7 @@ export default class AuthController {
             }
 
             // Check if the username already exists
-            const existingUsername = await this.userService.getUserByUsername(validateData.username!);
+            const existingUsername = await this.userService.getUserByUsername(validateData.username);
             if (existingUsername) {
                 return this.response
                     .status(HttpStatusCodes.BAD_REQUEST)
@@ -137,7 +137,7 @@ export default class AuthController {
                 name: user.name,
                 email: user.email,
                 username: user.username,
-                imageUri: user.imageUri!,
+                imageUri: user.imageUri,
                 role: user.role,
             });
 

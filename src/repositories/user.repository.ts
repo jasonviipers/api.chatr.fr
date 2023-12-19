@@ -15,32 +15,7 @@ export default class UserRepository {
     }
 
     async getAllUsers() {
-        let { search, limit, offset } = { search: '', limit: 10, offset: 0 };
-        return await this.prisma.user.findMany({
-            where: {
-                OR: [
-                    { username: { contains: search } },
-                    { name: { contains: search } },
-                    { email: { contains: search } },
-                ],
-                NOT: [],
-            },
-            take: limit,
-            orderBy: {
-                createdAt: 'desc',
-            },
-            skip: offset,
-            include: { 
-                // posts: true,
-                // comments: true,
-                // likes: true,
-                // followers: true,
-                // following: true,
-                // rooms: true,
-                // messages: true,
-                MessageSent: true,
-            },
-        });
+        return await this.prisma.user.findMany();
     }
 
     async getUser(where: Partial<Prisma.UserWhereUniqueInput>, select?: Prisma.UserSelect) {

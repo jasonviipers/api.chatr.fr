@@ -7,7 +7,7 @@ import { client } from './redis.utils';
 export interface JwtPayload extends Record<string, unknown> {
     id: string;
     username: string;
-    imageUri: string;
+    imageUri: string | null;
     name: string;
     email: string;
     role: Role;
